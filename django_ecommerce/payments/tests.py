@@ -1,5 +1,4 @@
 from pprint import pformat
-import unittest
 
 from django import forms
 from django.test import TestCase, SimpleTestCase
