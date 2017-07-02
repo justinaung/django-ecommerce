@@ -8,4 +8,6 @@ def index(request):
     if uid is None:
         return render(request, 'home.html')
     else:
-        return render(request, 'user.html', {'logged_in_user': User.objects.get(pk=uid)})
+        return render(
+            request, 'user.html', {'logged_in_user': User.get_by_id(uid)}
+        )

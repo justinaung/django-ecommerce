@@ -13,5 +13,9 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
 
+    @classmethod
+    def get_by_id(cls, uid: int):
+        return User.objects.get(pk=uid)
+
     def __str__(self):
         return self.email

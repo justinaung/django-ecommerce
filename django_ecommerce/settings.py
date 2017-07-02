@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_ecommerce.main',
     'django_ecommerce.contact',
     'django_ecommerce.payments',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
