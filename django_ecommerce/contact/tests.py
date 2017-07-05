@@ -1,26 +1,24 @@
-from django.test import TestCase, RequestFactory, Client
+from django.shortcuts import render_to_response
+from django.test import TestCase
 from django.urls import reverse
 
+from django_ecommerce.contact.models import ContactForm
 from django_ecommerce.contact.views import contact
+from django_ecommerce.payments.tests import ViewTesterMixin
 
 
-class ContactPageTest(TestCase):
+class ContactPageTest(ViewTesterMixin, TestCase):
 
-    #############
-    ### Setup ###
-    #############
     def setUp(self):
-        request_factory = RequestFactory()
-        self.request = request_factory.get('/')
-        self.request.session = dict()
+        html = render_to_response(
+            'contact.html',
+            {
+                'form': ContactForm(),
+                'user': None
+            }
+        )
+        ViewTesterMixin.setupViewTester('/contact/', contact, html.content)
 
-    ######################
-    ### Testing routes ###
-    ######################
-
-    def test_contact_route_returns_appropriate_code(self):
-        resp = contact(self.request)
-        self.assertEqual(resp.status_code, 200)
 
     ################################
     ### Testing sending messages ###
@@ -33,7 +31,5 @@ class ContactPageTest(TestCase):
             'topic': 'testing',
             'message': 'testing 123'
         }
-        c = Client()
-
-        resp = c.post(reverse('contact'), data=data, follow=True)
+        resp = self.client.post(reverse('contact'), data=data, follow=True)
         self.assertContains(resp, 'Your message has been sent. Thank you.')

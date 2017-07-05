@@ -5,7 +5,6 @@ from django.test import TestCase, RequestFactory
 from django.urls import resolve
 
 from django_ecommerce.main.views import index
-from django_ecommerce.payments.models import User
 
 
 class MainPageTests(TestCase):

@@ -1,10 +1,14 @@
 from pprint import pformat
+from unittest import skip
 
 from django import forms
-from django.test import TestCase, SimpleTestCase
+from django.shortcuts import render_to_response
+from django.test import TestCase, SimpleTestCase, RequestFactory
+from django.urls import resolve
 
-from django_ecommerce.payments.forms import SigninForm, UserForm
+from django_ecommerce.payments.forms import SigninForm, UserForm, CardForm
 from django_ecommerce.payments.models import User
+from django_ecommerce.payments.views import sign_in
 
 
 class UserModelTest(TestCase):
@@ -22,8 +26,8 @@ class UserModelTest(TestCase):
 
 class FormTesterMixin:
 
-    def assertCustFormError(self: SimpleTestCase, form_cls, expected_error_name,
-                        expected_error_msg, data):
+    def assertCustomFormError(self, form_cls, expected_error_name,
+                              expected_error_msg, data):
         test_form = form_cls(data=data)
 
         # if we get an error then the form should not be valid
@@ -37,7 +41,47 @@ class FormTesterMixin:
         )
 
 
-class FormTests(SimpleTestCase, FormTesterMixin):
+class ViewTesterMixin:
+
+    @classmethod
+    def setupViewTester(cls, url, view_func, expected_html, status_code=200,
+                        session=None):
+        request_factory = RequestFactory()
+        cls.request = request_factory.get(url)
+        cls.request.session = session or dict()
+        cls.status_code = status_code
+        cls.url = url
+        cls.view_func = staticmethod(view_func)
+        cls.expected_html = expected_html
+
+    def test_resolves_to_correct_view(self):
+        test_view = resolve(self.url)
+        self.assertEqual(test_view.func, self.view_func)
+
+    def test_returns_appropriate_response_code(self):
+        resp = self.view_func(self.request)
+        self.assertEqual(resp.status_code, self.status_code)
+
+    @skip
+    def test_returns_correct_html(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.content, self.expected_html)
+
+
+class SignInPageTests(ViewTesterMixin, SimpleTestCase):
+
+    def setUp(self):
+        html = render_to_response(
+            'sign_in.html',
+            {
+                'form': SigninForm(),
+                'user': None
+            }
+        )
+        ViewTesterMixin.setupViewTester('/sign_in/', sign_in, html.content)
+
+
+class FormTests(FormTesterMixin, SimpleTestCase):
 
     def test_signin_form_data_validation_for_invalid_data(self):
         invalid_data_list = [
@@ -48,10 +92,10 @@ class FormTests(SimpleTestCase, FormTesterMixin):
         ]
 
         for invalid_data in invalid_data_list:
-            self.assertCustFormError(SigninForm,
-                                     invalid_data['error'][0],
-                                     invalid_data['error'][1],
-                                     invalid_data['data'])
+            self.assertCustomFormError(SigninForm,
+                                       invalid_data['error'][0],
+                                       invalid_data['error'][1],
+                                       invalid_data['data'])
 
     def test_user_form_passwords_match(self):
         form = UserForm(
@@ -88,3 +132,29 @@ class FormTests(SimpleTestCase, FormTesterMixin):
 
         self.assertRaisesMessage(forms.ValidationError,
                                  'Passwords do not match')
+
+    def test_card_form_data_validation_for_invalid_data(self):
+        invalid_data_list = [
+            {
+                'data': {'last_4_digits': '123'},
+                'error': (
+                    'last_4_digits',
+                    [u'Ensure this value has at least 4 characters (it has 3).']
+                )
+            },
+            {
+                'data': {'last_4_digits': '12345'},
+                'error': (
+                    'last_4_digits',
+                    [u'Ensure this value has at most 4 characters (it has 5).']
+                )
+            }
+        ]
+
+        for invalid_data in invalid_data_list:
+            self.assertCustomFormError(
+                CardForm,
+                invalid_data['error'][0],
+                invalid_data['error'][1],
+                invalid_data['data']
+            )
