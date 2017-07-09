@@ -8,6 +8,11 @@ from django_ecommerce.payments.models import User
 
 def contact(request: HttpRequest):
     uid = request.session.get('user')
+    try:
+        user = User.get_by_id(uid)
+    except User.DoesNotExist:
+        user = None
+
     if request.method == 'POST':
         form = ContactView(request.POST)
         if form.is_valid():
@@ -19,4 +24,4 @@ def contact(request: HttpRequest):
     else:
         form = ContactView()
     return render(request, 'contact.html', {'form': form,
-                                            'logged_in_user': User.get_by_id(uid)})
+                                            'logged_in_user': user})
