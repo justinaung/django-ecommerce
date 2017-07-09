@@ -23,7 +23,7 @@ def sign_in(request):
         form = SigninForm(request.POST)
         if form.is_valid():
             results = User.objects.filter(email=form.cleaned_data['email'])
-            if results.exist():
+            if results.exists():
                 if results[0].check_password(form.cleaned_data['password']):
                     request.session['user'] = results[0].pk
                     return redirect('/')
@@ -54,25 +54,24 @@ def register(request):
         print('@@@@@@@@@@@@@@@@@@@@@')
         print(form)
         if form.is_valid():
-            # update based on your billing method (subscription vs one time)
-            customer = stripe.Customer.create(
+            customer = Customer.charge_or_create(
+                billing_type=1,
                 email=form.cleaned_data['email'],
                 description=form.cleaned_data['name'],
                 card=form.cleaned_data['stripe_token'],
-                plan='gold',
-            )
-            user = User(
-                name=form.cleaned_data['name'],
-                email=form.cleaned_data['email'],
-                last_4_digits=form.cleaned_data['last_4_digits'],
-                stripe_id=customer.id
-            )
-
-            # ensure encrpyted password
-            user.set_password(form.cleaned_data['password'])
-
+                plan='gold')
             try:
-                user.save()
+                user = User.create(name=form.cleaned_data['name'],
+                                   email=form.cleaned_data['email'],
+                                   last_4_digits=form.cleaned_data['last_4_digits'],
+                                   password=form.cleaned_data['password'])
+                if customer:
+                    user.stripe_id = customer.id
+                    user.save()
+                else:
+                    # TODO create unpaid users
+                    pass
+
             except IntegrityError:
                 form.addError(user.email + 'is already a member')
             else:
@@ -123,3 +122,13 @@ def edit(request):
         'years': range(2011, 2036)
     }
     return render(request, 'edit.html', context_dict)
+
+
+class Customer:
+
+    @classmethod
+    def charge_or_create(cls, billing_type: int=1, **kwargs) -> stripe.Customer:
+        if billing_type == 1:
+            return stripe.Customer.create(**kwargs)
+        elif billing_type == 2:
+            return stripe.Charge.create(**kwargs)

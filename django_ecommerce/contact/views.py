@@ -3,9 +3,11 @@ from django.http import HttpRequest
 from django.shortcuts import render, redirect
 
 from django_ecommerce.contact.forms import ContactView
+from django_ecommerce.payments.models import User
 
 
 def contact(request: HttpRequest):
+    uid = request.session.get('user')
     if request.method == 'POST':
         form = ContactView(request.POST)
         if form.is_valid():
@@ -16,4 +18,5 @@ def contact(request: HttpRequest):
             return redirect('/')
     else:
         form = ContactView()
-    return render(request, 'contact.html', {'form': form})
+    return render(request, 'contact.html', {'form': form,
+                                            'logged_in_user': User.get_by_id(uid)})

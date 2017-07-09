@@ -75,10 +75,10 @@
           <li><a href="/pages/about">About</a></li>
           <li><a href="{% url 'contact' %}">Contact</a></li>
           {% if logged_in_user %}
-            <li><a href="{% url 'payment:sign_out' %}">Logout</a></li>
+            <li><a href="{% url 'sign_out' %}">Logout</a></li>
           {% else %}
-            <li><a href="{% url 'payment:sign_in' %}">Login</a></li>
-            <li><a href="{% url 'payment:register' %}">Register</a></li>
+            <li><a href="{% url 'sign_in' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
           {% endif %}
         </ul>
         <h3><span class="fui-settings-16 muted">Your MVP!</span></h3>

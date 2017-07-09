@@ -10,7 +10,7 @@
     </div>
     <div class="row">
         <div class="span6 columns">
-            <form accept-charset="UTF-8" action="{% url 'payment:sign_in' %}" class="form-stacked" method="post">
+            <form accept-charset="UTF-8" action="{% url 'sign_in' %}" class="form-stacked" method="post">
                 {% csrf_token %}
                 {% if form.is_bound and not form.is_valid %}
                 <div class="alert-message block-message error">
