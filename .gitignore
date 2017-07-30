@@ -14,7 +14,7 @@ media
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-.idea/**/workspace.xml
+.idea/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
 
@@ -166,5 +166,8 @@ ENV/
 
 # mkdocs documentation
 /site
+
+# pychache
+*.pyc
 
 # End of https://www.gitignore.io/api/django,python,pycharm
