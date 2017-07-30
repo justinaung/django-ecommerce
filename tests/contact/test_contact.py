@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from django_ecommerce.contact.models import ContactForm
 from django_ecommerce.contact.views import contact
-from django_ecommerce.payments.tests import ViewTesterMixin
+from tests.payments.test_views import ViewTesterMixin
 
 
 class ContactPageTest(ViewTesterMixin, TestCase):
