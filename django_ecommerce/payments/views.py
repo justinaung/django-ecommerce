@@ -85,7 +85,7 @@ def register(request):
         'months': range(1, 13),
         'publishable': settings.STRIPE_PUBLISHABLE,
         'soon': soon(),
-        'user': user,
+        'logged_in_user': user,
         'years': range(2011, 2036),
     }
     return render(request, 'register.html', context_dict)
@@ -119,7 +119,8 @@ def edit(request):
         'publishable': settings.STRIPE_PUBLISHABLE,
         'soon': soon(),
         'months': range(1, 13),
-        'years': range(2011, 2036)
+        'years': range(2011, 2036),
+        'logged_in_user': user
     }
     return render(request, 'edit.html', context_dict)
 
