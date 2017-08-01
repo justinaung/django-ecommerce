@@ -135,8 +135,5 @@ STATIC_URL = '/static/'
 
 
 # Stripe
-try:
-    STRIPE_SECRET = os.environ['STRIPE_SECRET']
-    STRIPE_PUBLISHABLE = os.environ['STRIPE_PUBLISHABLE']
-except KeyError as e:
-    raise ValueError(e)
+STRIPE_SECRET = os.environ['STRIPE_SECRET']
+STRIPE_PUBLISHABLE = os.environ['STRIPE_PUBLISHABLE']
