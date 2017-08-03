@@ -10,7 +10,7 @@ from django_ecommerce.main.views import index
 class MainPageTests(TestCase):
 
     #############
-    ### Setup ###
+    #   Setup   #
     #############
     def setUp(self):
         request_factory = RequestFactory()
@@ -18,7 +18,7 @@ class MainPageTests(TestCase):
         self.request.session = dict()
 
     ######################
-    ### Testing routes ###
+    #   Testing routes   #
     ######################
 
     def test_root_resolves_to_main_view(self):
@@ -30,12 +30,12 @@ class MainPageTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     ###################################
-    ### Testing templates and views ###
+    #   Testing templates and views   #
     ###################################
 
     def test_returns_exact_html(self):
-        index = self.client.get('/')
-        self.assertEqual(index.content, render_to_response('home.html').content)
+        home = self.client.get('/')
+        self.assertEqual(home.content, render_to_response('home.html').content)
 
     def test_index_handles_logged_in_user(self):
         # create a dummy request

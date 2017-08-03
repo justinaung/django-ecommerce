@@ -56,7 +56,6 @@ class FormTests(FormTesterMixin, SimpleTestCase):
         # this will throw an error if the form doesn't clean correctly
         self.assertIsNotNone(form.clean())
 
-
     def test_user_form_passwords_dont_match_throws_error(self):
         form = UserForm(
             {
