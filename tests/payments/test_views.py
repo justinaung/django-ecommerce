@@ -1,3 +1,5 @@
+import socket
+
 from unittest import skip, mock
 
 from django.conf import settings
@@ -69,7 +71,8 @@ class RegisteredPageTests(ViewTesterMixin, TestCase):
 
     def test_invalid_form_returns_registration_page(self):
         with mock.patch(
-                'django_ecommerce.payments.forms.UserForm.is_valid') as user_mock:
+            'django_ecommerce.payments.forms.UserForm.is_valid'
+        ) as user_mock:
             user_mock.return_value = False
 
             resp = self.client.post('/register/')
@@ -101,3 +104,29 @@ class RegisteredPageTests(ViewTesterMixin, TestCase):
             self.assertEqual(resp.session['user'], 1)
 
             User.objects.get(email='justin@loverant.com')
+
+    def test_registering_user_when_stripe_is_down(self):
+        # create the request used to test the view
+        self.request.session = {}
+        self.request.method = 'POST'
+        self.request.POST = {
+            'email': 'python@rocks.com',
+            'name': 'pyRock',
+            'stripe_token': '...',
+            'last_4_digits': '4242',
+            'password': 'bad_password',
+            'ver_password': 'bad_password',
+        }
+
+        # mock out Stripe and ask it to throw a connection error
+        with mock.patch(
+            'stripe.Customer.create',
+            side_effect=socket.error("Can't connect to Stripe")
+        ):
+            # run the test
+            register(self.request)
+
+            # assert there is a record in the database without Stripe id.
+            users = User.objects.filter(email='python@rocks.com')
+            self.assertEqual(len(users), 1)
+            self.assertEqual(users[0].stripe_id, '')
