@@ -18,8 +18,12 @@ class User(AbstractBaseUser):
         return User.objects.get(pk=uid)
 
     @classmethod
-    def create(cls, name: str, email: str, password: str, last_4_digits: str):
-        new_user = cls(name=name, email=email, last_4_digits=last_4_digits)
+    def create(cls, name: str, email: str, password: str, last_4_digits: str,
+               stripe_id: str):
+        new_user = cls(name=name,
+                       email=email,
+                       last_4_digits=last_4_digits,
+                       stripe_id=stripe_id)
         new_user.set_password(password)
 
         new_user.save()
