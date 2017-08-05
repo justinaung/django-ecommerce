@@ -50,10 +50,6 @@ def register(request):
     user = None
     if request.method == 'POST':
         form = UserForm(request.POST)
-        print('@@@@@@@@@@@@@@@@@@@@@')
-        print(request)
-        print('@@@@@@@@@@@@@@@@@@@@@')
-        print(form)
         if form.is_valid():
             customer = Customer.charge_or_create(
                 billing_type=1,
