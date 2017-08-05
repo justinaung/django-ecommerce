@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django_ecommerce.payments.forms import SigninForm, UserForm, CardForm
-from django_ecommerce.payments.models import User
+from django_ecommerce.payments.models import User, UnpaidUser
 
 stripe.api_key = settings.STRIPE_SECRET
 
@@ -73,8 +73,7 @@ def register(request):
                     user.stripe_id = customer.id
                     user.save()
                 else:
-                    # TODO create unpaid users
-                    pass
+                    UnpaidUser.objects.create(email=user.email)                    
 
             except IntegrityError:
                 form.addError(user.email + 'is already a member')
@@ -132,7 +131,9 @@ def edit(request):
 class Customer:
 
     @classmethod
-    def charge_or_create(cls, billing_type: int=1, **kwargs) -> stripe.Customer:
+    def charge_or_create(cls, 
+                         billing_type: int=1, 
+                         **kwargs) -> stripe.Customer:
         try:
             if billing_type == 1:
                 return stripe.Customer.create(**kwargs)
