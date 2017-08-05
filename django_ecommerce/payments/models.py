@@ -31,3 +31,8 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+
+class UnpaidUser(models.Model):
+    email = models.CharField(max_length=255, unique=True)
+    last_notification = models.DateTimeField(auto_now=True)
