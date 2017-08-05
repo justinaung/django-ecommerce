@@ -1,4 +1,5 @@
 import datetime
+import socket
 
 import stripe
 from django.conf import settings
@@ -13,8 +14,8 @@ stripe.api_key = settings.STRIPE_SECRET
 
 
 def soon():
-    soon = datetime.date.today() + datetime.timedelta(days=30)
-    return {'month': soon.month, 'year': soon.year}
+    next_30_days = datetime.date.today() + datetime.timedelta(days=30)
+    return {'month': next_30_days.month, 'year': next_30_days.year}
 
 
 def sign_in(request):
@@ -61,10 +62,13 @@ def register(request):
                 card=form.cleaned_data['stripe_token'],
                 plan='gold')
             try:
-                user = User.create(name=form.cleaned_data['name'],
-                                   email=form.cleaned_data['email'],
-                                   last_4_digits=form.cleaned_data['last_4_digits'],
-                                   password=form.cleaned_data['password'])
+                user = User.create(
+                    name=form.cleaned_data['name'],
+                    email=form.cleaned_data['email'],
+                    last_4_digits=form.cleaned_data['last_4_digits'],
+                    password=form.cleaned_data['password'],
+                    stripe_id=''
+                )
                 if customer:
                     user.stripe_id = customer.id
                     user.save()
@@ -129,7 +133,10 @@ class Customer:
 
     @classmethod
     def charge_or_create(cls, billing_type: int=1, **kwargs) -> stripe.Customer:
-        if billing_type == 1:
-            return stripe.Customer.create(**kwargs)
-        elif billing_type == 2:
-            return stripe.Charge.create(**kwargs)
+        try:
+            if billing_type == 1:
+                return stripe.Customer.create(**kwargs)
+            elif billing_type == 2:
+                return stripe.Charge.create(**kwargs)
+        except socket.error:
+            return None
