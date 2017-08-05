@@ -8,7 +8,7 @@ from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import resolve
 
 from django_ecommerce.payments.forms import SigninForm, UserForm
-from django_ecommerce.payments.models import User
+from django_ecommerce.payments.models import User, UnpaidUser
 from django_ecommerce.payments.views import sign_in, soon, register
 
 
@@ -136,3 +136,7 @@ class RegisteredPageTests(ViewTesterMixin, TestCase):
             users = User.objects.filter(email='python@rocks.com')
             self.assertEqual(len(users), 1)
             self.assertEqual(users[0].stripe_id, '')
+
+            with self.assertNumQueries(1):
+                unpaid = UnpaidUser.objects.filter(email='python@rocks.com')
+                self.assertIsNotNone(unpaid[0].last_notification)
