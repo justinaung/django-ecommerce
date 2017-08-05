@@ -12,6 +12,14 @@ from django_ecommerce.payments.models import User
 from django_ecommerce.payments.views import sign_in, soon, register
 
 
+def get_mock_cust():
+    class mock_cust():
+        @property
+        def id(self):
+            return 12345
+    return mock_cust()
+
+
 class ViewTesterMixin:
     @classmethod
     def setupViewTester(cls, url, view_func, expected_html, status_code=200,
@@ -81,29 +89,27 @@ class RegisteredPageTests(ViewTesterMixin, TestCase):
             # make sure that we did indeed call our is_valid function
             self.assertEqual(user_mock.call_count, 1)
 
-    @skip
-    def test_registering_new_user_returns_successfully(self):
+    @mock.patch('django_ecommerce.payments.views.Customer.charge_or_create',
+                return_value=get_mock_cust())
+    def test_registering_new_user_returns_successfully(self, stripe_mock):
         self.request.session = {}
         self.request.method = 'POST'
         self.request.POST = {
-            'email': 'justin@loverant.com',
-            'name': 'Justin',
+            'email': 'python@rocks.com',
+            'name': 'pyRock',
             'stripe_token': '...',
             'last_4_digits': '4242',
             'password': 'bad_password',
-            'ver_password': 'bad_password'
+            'ver_password': 'bad_password',
         }
-        with mock.patch('stripe.Customer') as stripe_mock:
-            config = {'create.return_value': mock.Mock()}
-            stripe_mock.configure_mock(**config)
 
-            resp = register(self.request)
+        resp = register(self.request)
 
-            self.assertEqual(resp.content, "")
-            self.assertEqual(resp.status_code, 302)
-            self.assertEqual(resp.session['user'], 1)
+        self.assertEqual(resp.content, b"")
+        self.assertEqual(resp.status_code, 302)
 
-            User.objects.get(email='justin@loverant.com')
+        user = User.objects.get(email='python@rocks.com')
+        self.assertEqual(user.stripe_id, '12345')
 
     def test_registering_user_when_stripe_is_down(self):
         # create the request used to test the view
