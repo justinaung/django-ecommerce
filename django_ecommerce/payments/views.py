@@ -1,20 +1,22 @@
 import datetime
+import socket
 
 import stripe
 from django.conf import settings
 from django.db import IntegrityError
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django_ecommerce.payments.forms import SigninForm, UserForm, CardForm
-from django_ecommerce.payments.models import User
+from django_ecommerce.payments.models import User, UnpaidUser
 
 stripe.api_key = settings.STRIPE_SECRET
 
 
 def soon():
-    soon = datetime.date.today() + datetime.timedelta(days=30)
-    return {'month': soon.month, 'year': soon.year}
+    next_30_days = datetime.date.today() + datetime.timedelta(days=30)
+    return {'month': next_30_days.month, 'year': next_30_days.year}
 
 
 def sign_in(request):
@@ -49,10 +51,6 @@ def register(request):
     user = None
     if request.method == 'POST':
         form = UserForm(request.POST)
-        print('@@@@@@@@@@@@@@@@@@@@@')
-        print(request)
-        print('@@@@@@@@@@@@@@@@@@@@@')
-        print(form)
         if form.is_valid():
             customer = Customer.charge_or_create(
                 billing_type=1,
@@ -61,17 +59,19 @@ def register(request):
                 card=form.cleaned_data['stripe_token'],
                 plan='gold')
             try:
-                user = User.create(name=form.cleaned_data['name'],
-                                   email=form.cleaned_data['email'],
-                                   last_4_digits=form.cleaned_data['last_4_digits'],
-                                   password=form.cleaned_data['password'])
-                if customer:
-                    user.stripe_id = customer.id
-                    user.save()
-                else:
-                    # TODO create unpaid users
-                    pass
-
+                with transaction.atomic():
+                    user = User.create(
+                        name=form.cleaned_data['name'],
+                        email=form.cleaned_data['email'],
+                        last_4_digits=form.cleaned_data['last_4_digits'],
+                        password=form.cleaned_data['password'],
+                        stripe_id=''
+                    )
+                    if customer:
+                        user.stripe_id = customer.id
+                        user.save()
+                    else:
+                        UnpaidUser.objects.create(email=user.email)
             except IntegrityError:
                 form.addError(user.email + 'is already a member')
             else:
@@ -128,8 +128,15 @@ def edit(request):
 class Customer:
 
     @classmethod
-    def charge_or_create(cls, billing_type: int=1, **kwargs) -> stripe.Customer:
-        if billing_type == 1:
-            return stripe.Customer.create(**kwargs)
-        elif billing_type == 2:
-            return stripe.Charge.create(**kwargs)
+    def charge_or_create(cls,
+                         billing_type: int=1,
+                         **kwargs) -> stripe.Customer:
+        try:
+            if billing_type == 1:
+                return stripe.Customer.create(**kwargs)
+            elif billing_type == 2:
+                return stripe.Charge.create(**kwargs)
+        except (socket.error,
+                stripe.APIConnectionError,
+                stripe.InvalidRequestError):
+            return None
