@@ -6,6 +6,7 @@ from django.conf import settings
 from django.shortcuts import render_to_response
 from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import resolve
+from django.db import IntegrityError
 
 from django_ecommerce.payments.forms import SigninForm, UserForm
 from django_ecommerce.payments.models import User, UnpaidUser
@@ -140,3 +141,32 @@ class RegisteredPageTests(ViewTesterMixin, TestCase):
             with self.assertNumQueries(1):
                 unpaid = UnpaidUser.objects.filter(email='python@rocks.com')
                 self.assertIsNotNone(unpaid[0].last_notification)
+
+    @mock.patch('django_ecommerce.payments.models.UnpaidUser.save',
+                side_effect=IntegrityError)
+    def test_regist_user_when_stripe_is_down_all_or_nothing(self, save_mock):
+        # create the request used to test the view
+        self.request.session = {}
+        self.request.method = 'POST'
+        self.request.POST = {
+            'email': 'python@rocks.com',
+            'name': 'pyRock',
+            'stripe_token': '...',
+            'last_4_digits': '4242',
+            'password': 'bad_password',
+            'ver_password': 'bad_password',
+        }
+
+        # mock out stripe and ask it to throw a connection error
+        with mock.patch(
+            'stripe.Customer.create',
+            side_effect=socket.error("Can't cannot to stripe")
+        ):
+            register(self.request)
+
+            with self.assertRaises(User.DoesNotExist):
+                User.objects.get(email='python@rocks.com')
+
+            # check the associated table has no updated data
+            with self.assertRaises(UnpaidUser.DoesNotExist):
+                UnpaidUser.objects.get(email='python@rocks.com')
