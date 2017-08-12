@@ -4,6 +4,7 @@ import socket
 import stripe
 from django.conf import settings
 from django.db import IntegrityError
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
@@ -58,19 +59,19 @@ def register(request):
                 card=form.cleaned_data['stripe_token'],
                 plan='gold')
             try:
-                user = User.create(
-                    name=form.cleaned_data['name'],
-                    email=form.cleaned_data['email'],
-                    last_4_digits=form.cleaned_data['last_4_digits'],
-                    password=form.cleaned_data['password'],
-                    stripe_id=''
-                )
-                if customer:
-                    user.stripe_id = customer.id
-                    user.save()
-                else:
-                    UnpaidUser.objects.create(email=user.email)                    
-
+                with transaction.atomic():
+                    user = User.create(
+                        name=form.cleaned_data['name'],
+                        email=form.cleaned_data['email'],
+                        last_4_digits=form.cleaned_data['last_4_digits'],
+                        password=form.cleaned_data['password'],
+                        stripe_id=''
+                    )
+                    if customer:
+                        user.stripe_id = customer.id
+                        user.save()
+                    else:
+                        UnpaidUser.objects.create(email=user.email)
             except IntegrityError:
                 form.addError(user.email + 'is already a member')
             else:
@@ -127,13 +128,15 @@ def edit(request):
 class Customer:
 
     @classmethod
-    def charge_or_create(cls, 
-                         billing_type: int=1, 
+    def charge_or_create(cls,
+                         billing_type: int=1,
                          **kwargs) -> stripe.Customer:
         try:
             if billing_type == 1:
                 return stripe.Customer.create(**kwargs)
             elif billing_type == 2:
                 return stripe.Charge.create(**kwargs)
-        except socket.error:
+        except (socket.error,
+                stripe.APIConnectionError,
+                stripe.InvalidRequestError):
             return None
