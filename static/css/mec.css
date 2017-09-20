@@ -15,8 +15,12 @@ body {
     background-color: #eee;
 }
 
-h1 {
+h1, .nav li, .navbar-brand {
     font-family: 'Starjedi', sans-serif;
+}
+
+.navbar-brand {
+    height: 40px;
 }
 
 .center-text {
