@@ -42,7 +42,7 @@ def sign_in(request):
 
 
 def sign_out(request):
-    if request.session['user']:
+    if request.session.get('user'):
         del request.session['user']
     return redirect('/')
 

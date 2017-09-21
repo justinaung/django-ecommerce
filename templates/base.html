@@ -23,9 +23,9 @@
  <body>
    <!-- NAVBAR ============================================================= -->
    <div class="navbar-wrapper">
-      <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
         <div class="container">
-          <div class="navbar-header">
+          <header class="navbar-header">
             <button tyupe="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
               <span class="sr-only">Toggle navigation</span>
               <span class="icon-bar"></span>
@@ -33,13 +33,13 @@
               <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="#">Mos Eisley's Cantina</a>
-          </div>
+          </header>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <li class="active"><a href="{% url 'main:home' %}">Home</a></li>
               <li><a href="/pages/about">About</a></li>
               <li><a href="{% url 'contact' %}">Contact</a></li>
-              {% if user %}
+              {% if logged_in_user %}
                   <li><a href="{% url 'sign_out' %}">Signout</a></li> 
               {% else %}
                   <li><a href="{% url 'sign_in' %}">Signin</a></li> 
@@ -48,16 +48,20 @@
             </ul>
           </div> <!-- end navbar links -->
         </div> <!-- end container -->
-      </div> <!-- end navbar -->
+      </nav> <!-- end navbar -->
    </div>
+   <div class="container">
+     {% block content %}
+        
+     {% endblock %}
 
-   <hr class="featurette-divider">
-
-   <footer>
-     <p class="pull-right"><a href="/#">Back to top</a></p>
-     <p class="pull-left">&copy; 2017 <a href="http://realpython.com">The Jedi Council</a></p>
-     <p class="text-center">&middot; Powered by about 37 AT-AT Walkers, Python 3 and Djang 1.11 &middot;</p>
-   </footer>
+     <hr class="featurette-divider">
+     <footer>
+       <p class="pull-right"><a href="/#">Back to top</a></p>
+       <p class="pull-left">&copy; 2017 <a href="http://realpython.com">The Jedi Council</a></p>
+       <p class="text-center">&middot; Powered by about 37 AT-AT Walkers, Python 3 and Djang 1.11 &middot;</p>
+     </footer>
+  </div>
    <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
    <script type="text/javascript">
     //<! [CDATA[
