@@ -6,8 +6,8 @@ from django_ecommerce.payments.models import User
 def index(request):
     uid = request.session.get('user')
     if uid is None:
-        return render(request, 'home.html')
+        return render(request, 'main/home.html')
     else:
         return render(
-            request, 'user.html', {'logged_in_user': User.get_by_id(uid)}
+            request, 'main/user.html', {'logged_in_user': User.get_by_id(uid)}
         )

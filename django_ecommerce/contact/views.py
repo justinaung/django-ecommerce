@@ -23,5 +23,5 @@ def contact(request: HttpRequest):
             return redirect('/')
     else:
         form = ContactView()
-    return render(request, 'contact.html', {'form': form,
-                                            'logged_in_user': user})
+    return render(request, 'contact/contact.html', {'form': form,
+                                                    'logged_in_user': user})

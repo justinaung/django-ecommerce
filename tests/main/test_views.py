@@ -35,7 +35,8 @@ class MainPageTests(TestCase):
 
     def test_returns_exact_html(self):
         home = self.client.get('/')
-        self.assertEqual(home.content, render_to_response('home.html').content)
+        self.assertEqual(home.content, 
+                         render_to_response('main/home.html').content)
 
     def test_index_handles_logged_in_user(self):
         # create a dummy request
@@ -51,5 +52,5 @@ class MainPageTests(TestCase):
 
             # verify it returns the page for the logged-in user
             expected_html = render_to_response(
-                'user.html', {'logged_in_user': user_mock.get_by_id(1)})
+                'main/user.html', {'logged_in_user': user_mock.get_by_id(1)})
             self.assertEqual(resp.content, expected_html.content)

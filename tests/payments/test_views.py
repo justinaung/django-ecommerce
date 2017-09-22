@@ -50,7 +50,7 @@ class ViewTesterMixin:
 class SignInPageTests(ViewTesterMixin, SimpleTestCase):
     def setUp(self):
         html = render_to_response(
-            'sign_in.html',
+            'payments/sign_in.html',
             {
                 'form': SigninForm(),
                 'user': None
@@ -62,7 +62,7 @@ class SignInPageTests(ViewTesterMixin, SimpleTestCase):
 class RegisteredPageTests(ViewTesterMixin, TestCase):
     def setUp(self):
         html = render_to_response(
-            'register.html',
+            'payments/register.html',
             {
                 'form': UserForm(),
                 'months': range(1, 13),
