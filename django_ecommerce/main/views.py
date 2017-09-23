@@ -9,7 +9,7 @@ def index(request):
     if uid is None:
         return render(request, 'main/home.html')
     else:
-        status = StatusReport.objects.all().order_by('-when')[:20]
+        status = StatusReport.objects.latest()
         return render(
             request,
             'main/user.html',
