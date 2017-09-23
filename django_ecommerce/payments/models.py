@@ -5,9 +5,10 @@ from django.db import models
 class User(AbstractBaseUser):
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255, unique=True)
-    # password field defined in base class
     last_4_digits = models.CharField(max_length=4, blank=True)
+    rank = models.CharField(max_length=50, default='Padwan')
     stripe_id = models.CharField(max_length=255)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
