@@ -59,7 +59,7 @@ class MainPageTests(TestCase):
                  'reports': status},
             )
             self.assertEqual(self.remove_csrf(resp.content.decode()),
-                             self.remove_csrf(expected_html.content.decode()))
+                             expected_html.content.decode())
 
     @staticmethod
     def remove_csrf(html_code):
