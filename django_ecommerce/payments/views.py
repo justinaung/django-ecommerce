@@ -38,11 +38,12 @@ def sign_in(request):
 
     print(form.non_field_errors())
 
-    return render(request, 'sign_in.html', {'form': form, 'user': user})
+    return render(request, 'payments/sign_in.html', {'form': form,
+                                                     'user': user})
 
 
 def sign_out(request):
-    if request.session['user']:
+    if request.session.get('user'):
         del request.session['user']
     return redirect('/')
 
@@ -88,7 +89,7 @@ def register(request):
         'logged_in_user': user,
         'years': range(2011, 2036),
     }
-    return render(request, 'register.html', context_dict)
+    return render(request, 'payments/register.html', context_dict)
 
 
 def edit(request):
@@ -122,7 +123,7 @@ def edit(request):
         'years': range(2011, 2036),
         'logged_in_user': user
     }
-    return render(request, 'edit.html', context_dict)
+    return render(request, 'payments/edit.html', context_dict)
 
 
 class Customer:

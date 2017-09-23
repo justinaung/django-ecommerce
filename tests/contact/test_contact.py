@@ -11,7 +11,7 @@ class ContactPageTest(ViewTesterMixin, TestCase):
 
     def setUp(self):
         html = render_to_response(
-            'contact.html',
+            'contact/contact.html',
             {
                 'form': ContactForm(),
                 'user': None
