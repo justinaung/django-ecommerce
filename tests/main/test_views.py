@@ -1,9 +1,11 @@
 from unittest import mock
 
+import re
 from django.shortcuts import render_to_response
 from django.test import TestCase, RequestFactory
 from django.urls import resolve
 
+from django_ecommerce.main.models import StatusReport
 from django_ecommerce.main.views import index
 
 
@@ -49,8 +51,17 @@ class MainPageTests(TestCase):
 
             # request the index page
             resp = index(self.request)
-
             # verify it returns the page for the logged-in user
+            status = StatusReport.objects.latest()
             expected_html = render_to_response(
-                'main/user.html', {'logged_in_user': user_mock.get_by_id(1)})
-            self.assertEqual(resp.content, expected_html.content)
+                'main/user.html',
+                {'logged_in_user': user_mock.get_by_id(1),
+                 'reports': status},
+            )
+            self.assertEqual(self.remove_csrf(resp.content.decode()),
+                             expected_html.content.decode())
+
+    @staticmethod
+    def remove_csrf(html_code):
+        csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
+        return re.sub(csrf_regex, '', html_code)
