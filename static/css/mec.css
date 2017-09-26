@@ -60,3 +60,10 @@ h1, .nav li, .navbar-brand {
     margin-right: 0px;
     margin-top: -20px
 }
+
+#darth_caption {
+    top: 0%;
+    left: 5%;
+    right: 60%;
+    text-align: left;
+}
