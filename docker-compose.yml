@@ -1,0 +1,23 @@
+version: '3.1'
+
+services:
+  
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: justin9/django-ecommerce-backend:latest
+    command: ./manage.py runserver 0.0.0.0:8000 
+             --settings=django_ecommerce.config.settings.production
+    environment:
+      STRIPE_SECRET_FILE: /run/secrets/stripe_secret
+      STRIPE_PUBLISHABLE: pk_test_d3G08EnyCMXxcXqNZMPZWWDT
+    ports:
+      - 8000:8000
+    secrets:
+      - stripe_secret
+    
+secrets:
+  stripe_secret:
+    file: ./stripe_secret.txt

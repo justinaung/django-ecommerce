@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django_ecommerce.main',
     'django_ecommerce.contact',
     'django_ecommerce.payments',
-    'django_extensions',
     'rest_framework',
 ]
 
@@ -77,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django_ecommerce.wsgi.application'
+WSGI_APPLICATION = 'django_ecommerce.config.wsgi.application'
 
 
 # Database
@@ -136,5 +135,5 @@ STATIC_URL = '/static/'
 
 
 # Stripe
-STRIPE_SECRET = os.environ['STRIPE_SECRET']
-STRIPE_PUBLISHABLE = os.environ['STRIPE_PUBLISHABLE']
+STRIPE_SECRET = os.getenv('STRIPE_SECRET')
+STRIPE_PUBLISHABLE = os.getenv('STRIPE_PUBLISHABLE')

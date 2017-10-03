@@ -40,9 +40,11 @@ traitlets = "*"
 "urllib3" = "*"
 wcwidth = "*"
 wrapt = "*"
+gunicorn = "*"
 
 
 [dev-packages]
+
 pytest = "*"
 ipdb = "*"
 ipython = "*"
@@ -51,5 +53,4 @@ ipython = "*"
 
 
 [requires]
-python_version = "3.6.2"
-
+python_version = "3.6.1"
