@@ -1,0 +1,55 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+appnope = "*"
+astroid = "*"
+"autopep8" = "*"
+blessings = "*"
+bpython = "*"
+certifi = "*"
+chardet = "*"
+curtsies = "*"
+decorator = "*"
+django = "==1.11.2"
+djangorestframework = "==3.6.4"
+"flake8" = "*"
+greenlet = "*"
+idna = "*"
+isort = "*"
+jedi = "*"
+"lazy-object-proxy" = "*"
+mccabe = "*"
+pbr = "*"
+"pep8" = "*"
+pexpect = "*"
+pickleshare = "*"
+"prompt-toolkit" = "*"
+"psycopg2" = "*"
+ptyprocess = "*"
+pycodestyle = "*"
+pygments = "*"
+pytz = "*"
+requests = "*"
+simplegeneric = "*"
+stripe = "*"
+traitlets = "*"
+"urllib3" = "*"
+wcwidth = "*"
+wrapt = "*"
+
+
+[dev-packages]
+pytest = "*"
+ipdb = "*"
+ipython = "*"
+"ipython-genutils" = "*"
+"django-extensions" = "==1.8.0"
+
+
+[requires]
+python_version = "3.6.2"
+
