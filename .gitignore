@@ -172,3 +172,4 @@ ENV/
 
 # End of https://www.gitignore.io/api/django,python,pycharm
 static_files
+.envrc
