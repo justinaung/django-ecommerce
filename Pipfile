@@ -41,6 +41,7 @@ traitlets = "*"
 wcwidth = "*"
 wrapt = "*"
 gunicorn = "*"
+"django-environ" = "*"
 
 
 [dev-packages]
@@ -53,4 +54,4 @@ ipython = "*"
 
 
 [requires]
-python_version = "3.6.1"
+python_version = "3.6"

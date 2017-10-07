@@ -14,3 +14,5 @@ RUN pipenv install --system --deploy
 EXPOSE 8000
 
 COPY django_ecommerce ./django_ecommerce
+COPY static ./static
+COPY templates ./templates

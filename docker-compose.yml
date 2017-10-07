@@ -1,23 +1,66 @@
 version: '3.1'
 
 services:
-  
-  backend:
-    container_name: backend
+  nginx:
+    container_name: nginx
+    image: nginx:1.11
+    ports:
+      - 8000:8000
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./static_files:/static
+    depends_on:
+      - django
+
+  django:
+    container_name: django
     build:
       context: .
       dockerfile: Dockerfile
     image: justin9/django-ecommerce-backend:latest
-    command: ./manage.py runserver 0.0.0.0:8000 
-             --settings=django_ecommerce.config.settings.production
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000  --timeout 5400 django_ecommerce.config.wsgi:application --log-level=INFO"
     environment:
+      DJANGO_SETTINGS_MODULE: django_ecommerce.config.settings.production
+      POSTGRES_HOST: postgres
+      POSTGRES_USER_FILE: /run/secrets/pg_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
       STRIPE_SECRET_FILE: /run/secrets/stripe_secret
       STRIPE_PUBLISHABLE: pk_test_d3G08EnyCMXxcXqNZMPZWWDT
-    ports:
-      - 8000:8000
+    expose:
+      - 8000
+    depends_on:
+      - postgres
+    volumes:
+      - ./static_files:/static
     secrets:
       - stripe_secret
-    
+      - pg_user
+      - pg_password
+  
+  postgres:
+    container_name: postgres
+    image: postgres:9.6.2
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/pg_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - pg_backups:/pg_backups
+    secrets:
+      - pg_user
+      - pg_password
+
+        
 secrets:
   stripe_secret:
     file: ./stripe_secret.txt
+  pg_user:
+    file: ./postgres_user.txt
+  pg_password:
+    file: ./postgres_password.txt
+  
+volumes:
+  pg_data:
+  pg_backups:

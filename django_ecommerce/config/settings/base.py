@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+import environ
+
+from django_ecommerce.config.utils import get_file_secret
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+BASE_DIR = environ.Path(__file__) - 4
+TEMPLATES_DIR = BASE_DIR('templates')
 
 SITE_ID = 1
 
@@ -86,8 +90,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'django_db',
-        'USER': 'djangousr',
-        'PASSWORD': 'djangousr',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -130,10 +134,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+STATICFILES_DIRS = (BASE_DIR('static'),)
 STATIC_URL = '/static/'
+STATIC_ROOT = './static_files/'
 
 
-# Stripe
-STRIPE_SECRET = os.getenv('STRIPE_SECRET')
+STRIPE_SECRET = os.getenv(
+    'STRIPE_SECRET',
+    default=get_file_secret(os.getenv('STRIPE_SECRET_FILE'))
+)
 STRIPE_PUBLISHABLE = os.getenv('STRIPE_PUBLISHABLE')
